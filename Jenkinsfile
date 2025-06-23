@@ -4,7 +4,7 @@ pipeline{
     stages{
         stage("Hello World"){
             steps{
-                echo "Automatically trigger pipeline"
+                echo "Automatically trigger pipeline test"
             }
         }
     }
