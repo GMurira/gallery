@@ -48,18 +48,16 @@ pipeline {
         }
     }
 
-
-    //?
-    // post {
-    //     success {
-    //         echo 'Build and deploy successful.'
-    //         sh '''
-    //             curl -X POST -H 'Content-type: application/json' \
-    //             --data "{\"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to https://gallery-2off.onrender.com\"}" your-slack-webhook-url
-    //         '''
-    //     }
-    //     always {
-    //         echo 'Pipeline complete.'
-    //     }
-    // }
+    post {
+        success {
+            echo 'Build and deploy successful.'
+            sh '''
+                curl -X POST -H 'Content-type: application/json' \
+                --data "{\"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to https://gallery-2off.onrender.com\"}"
+            '''
+        }
+        always {
+            echo 'Pipeline complete.'
+        }
+    }
 }
