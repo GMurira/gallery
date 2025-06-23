@@ -57,18 +57,18 @@ pipeline {
         }
     }
 
-    // post {
-    //     success {
-    //         echo 'Build and deploy successful.'
-    //         sh '''
-    //             curl -X POST -H 'Content-type: application/json' \
-    //             --data "{
-    //                 \"text\": \" Build #${BUILD_NUMBER} deployed successfully! View it at ${RENDER_URL}\"
-    //             }" ${SLACK_WEBHOOK}
-    //         '''
-    //     }
-    //     always {
-    //         echo 'Pipeline complete.'
-    //     }
-    // }
+    post {
+        success {
+            echo 'Build and deploy successful.'
+            sh '''
+                curl -X POST -H 'Content-type: application/json' \
+                --data "{
+                    \"text\": \" Build #${BUILD_NUMBER} deployed successfully! View it at ${RENDER_URL}\"
+                }" ${SLACK_WEBHOOK}
+            '''
+        }
+        always {
+            echo 'Pipeline complete.'
+        }
+    }
 }
