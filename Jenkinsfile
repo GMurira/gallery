@@ -2,19 +2,10 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'nodejs' // Use the correct label defined in Jenkins Global Tool Configuration
+        nodejs 'nodejs' 
     }
 
-    environment {
-        MONGO_URI = credentials('mongo_uri')  // Set this up in Jenkins credentials
-        RENDER_DEPLOY_HOOK = credentials('render_deploy_hook') // Render deploy hook secret
-        RENDER_URL = 'https://gallery-2off.onrender.com'  // Replace with your actual Render site URL
-        SLACK_WEBHOOK = credentials('slack_webhook') // Slack webhook secret
-    }
-
-    triggers {
-        githubPush() // Automatically trigger on push
-    }
+    
 
     stages {
         stage('Clone Repository') {
@@ -37,10 +28,10 @@ pipeline {
                 failure {
                     echo 'Tests failed.'
                     emailext(
-    subject: "Jenkins Build #${env.BUILD_NUMBER} Failed",
-    body: "Build failed during tests. Please check Jenkins logs for more details.",
-    to: 'geoffrey.murira@student.moringaschool.com'
-)
+                        subject: "Jenkins Build #${env.BUILD_NUMBER} Failed",
+                        body: "Build failed during tests. Please check Jenkins logs for more details.",
+                        to: 'geoffrey.murira@student.moringaschool.com'
+                    )
                     error('Tests did not pass.')
                 }
                 success {
@@ -51,8 +42,8 @@ pipeline {
 
         stage('Deploy to Render') {
             steps {
-                echo '🚀 Triggering Render deployment...'
-                sh "curl -X POST ${RENDER_DEPLOY_HOOK}"
+                echo 'Deploy to render'
+                sh "curl -X POST https://api.render.com/deploy/srv-d1c3remr433s7382lm6g?key=zCmG31MN5Do"
             }
         }
     }
@@ -62,9 +53,7 @@ pipeline {
             echo 'Build and deploy successful.'
             sh '''
                 curl -X POST -H 'Content-type: application/json' \
-                --data "{
-                    \"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to ${RENDER_URL}\" 
-                }" ${SLACK_WEBHOOK}
+                --data "{\"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to https://gallery-2off.onrender.com\"}" your-slack-webhook-url
             '''
         }
         always {
