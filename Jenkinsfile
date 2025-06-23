@@ -2,24 +2,24 @@ pipeline {
     agent any
 
     tools {
-        nodejs 'NodeJS-24'
+        nodejs 'nodejs' // Use the correct label defined in Jenkins Global Tool Configuration
     }
 
     environment {
-        MONGO_URI = credentials('mongo_uri')  // Set up in Jenkins credentials
-        RENDER_DEPLOY_HOOK = credentials('render_deploy_hook') // Render deploy webhook URL
-        RENDER_URL = 'https://your-render-app.onrender.com'  // Replace with actual Render site URL
-        SLACK_WEBHOOK = credentials('slack_webhook') // Slack Incoming Webhook URL
+        MONGO_URI = credentials('mongo_uri')  // Set this up in Jenkins credentials
+        RENDER_DEPLOY_HOOK = credentials('render_deploy_hook') // Render deploy hook secret
+        RENDER_URL = 'https://gallery-2off.onrender.com'  // Replace with your actual Render site URL
+        SLACK_WEBHOOK = credentials('slack_webhook') // Slack webhook secret
     }
 
     triggers {
-        githubPush()
+        githubPush() // Automatically trigger on push
     }
 
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'master', url: 'https://github.com/GMurira/gallery'
+                git branch: 'master', url: 'https://github.com/GMurira/gallery.git'
             }
         }
 
@@ -36,12 +36,9 @@ pipeline {
             post {
                 failure {
                     echo 'Tests failed.'
-                    emailext(
-                        subject: "Jenkins Build #${env.BUILD_NUMBER} Failed",
-                        body: "Build failed during tests. See Jenkins for details.",
-                        to: 'your-email@example.com'
+                    emailext('geoffrey.murira@student.moringaschool.com'
                     )
-                    error('Stopping pipeline due to test failure.')
+                    error('Tests did not pass.')
                 }
                 success {
                     echo 'Tests passed.'
@@ -51,7 +48,7 @@ pipeline {
 
         stage('Deploy to Render') {
             steps {
-                echo 'Triggering deployment to Render...'
+                echo '🚀 Triggering Render deployment...'
                 sh "curl -X POST ${RENDER_DEPLOY_HOOK}"
             }
         }
@@ -63,7 +60,7 @@ pipeline {
             sh '''
                 curl -X POST -H 'Content-type: application/json' \
                 --data "{
-                    \"text\": \" Build #${BUILD_NUMBER} deployed successfully! View it at ${RENDER_URL}\"
+                    \"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to ${RENDER_URL}\" 
                 }" ${SLACK_WEBHOOK}
             '''
         }
