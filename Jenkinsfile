@@ -5,8 +5,6 @@ pipeline {
         nodejs 'nodejs' 
     }
 
-    
-
     stages {
         stage('Clone Repository') {
             steps {
@@ -45,16 +43,24 @@ pipeline {
                 echo 'Deploy to render'
                 sh "curl -X POST https://api.render.com/deploy/srv-d1c3remr433s7382lm6g?key=zCmG31MN5Do"
             }
+            post {
+                success {
+                    slackSend(
+                        channel: '#geoffrey_ip1',
+                        color: 'good',
+                        message: "Deployment Successful! Build #${env.BUILD_NUMBER} deployed: https://gallery-2off.onrender.com",
+                        teamDomain: 'Murira',
+                        tokenCredentialId: 'slacktoken',
+                        botUser: true
+                    )
+                }
+            }
         }
     }
 
     post {
         success {
             echo 'Build and deploy successful.'
-            sh '''
-                curl -X POST -H 'Content-type: application/json' \
-                --data "{\"text\": \"Jenkins Build #${BUILD_NUMBER} deployed to https://gallery-2off.onrender.com\"}"
-            '''
         }
         always {
             echo 'Pipeline complete.'
